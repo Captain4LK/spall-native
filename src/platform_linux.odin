@@ -2,7 +2,8 @@
 package main
 
 import "core:c"
-import "core:sys/unix"
+import "core:sys/linux"
+import "core:sys/posix"
 import "core:os"
 import "core:fmt"
 import "core:strings"
@@ -57,37 +58,38 @@ text_cursor: xlib.Cursor
 
 open_file_dialog :: proc() -> (string, bool) {
 	buffer := [4096]u8{}
-	fds := [2]os.Handle{}
-	ret := unix.sys_pipe2(raw_data(&fds), 0)
+	fds := [2]linux.Fd{}
+	ret := linux.pipe2(&fds, {})
 
-	pid, err := os.fork()
+	pid, err := linux.fork()
 	if err != os.ERROR_NONE {
 		fmt.printf("Spall uses Zenity for file dialogs! Please install Zenity or launch your trace via the command line, ex: spall <trace>\n")
-		unix.sys_close(int(fds[0]))
-		unix.sys_close(int(fds[1]))
+		linux.close(fds[0])
+		linux.close(fds[1])
 		return "", false
 	}
 
 	if pid == 0 {
-		unix.sys_dup2(int(fds[1]), 1)
-		unix.sys_close(int(fds[1]))
-		unix.sys_close(int(fds[0]))
-		os.execvp("zenity", []string{"--file-selection"})
+		linux.dup2(fds[1], 1)
+		linux.close(fds[1])
+		linux.close(fds[0])
+      arguments: []cstring = {"zenity", "--file-selection", nil}
+		posix.execvp(cstring("zenity"), raw_data(arguments))
 		os.exit(1)
 	}
-	unix.sys_close(int(fds[1]))
+	linux.close(fds[1])
 
 	for {
-		ret_bytes := unix.sys_read(int(fds[0]), raw_data(buffer[:]), len(buffer))
+		ret_bytes, err := linux.read(fds[0], buffer[:])
 		if ret_bytes > 0 {
-			unix.sys_close(int(fds[0]))
+			linux.close(fds[0])
 			return strings.clone_from_bytes(buffer[:ret_bytes-1]), true
 		} else {
 			break
 		}
 	}
 
-	unix.sys_close(int(fds[0]))
+	linux.close(fds[0])
 	return "", false
 }
 
@@ -214,7 +216,7 @@ _get_dpi :: proc(x_display: ^xlib.Display) -> f32 {
 	}
 
 	dpi_str := string(cstring(value.addr))
-	dpi = f32(strconv.atof(dpi_str))
+	dpi = f32(strconv.parse_f64(dpi_str) or_else 0)
 	if dpi == 0 {
 		return 96
 	}
@@ -227,7 +229,7 @@ _create_cursor :: proc(display: ^xlib.Display, name: cstring, theme: cstring, si
 	if theme != nil {
 		img := xlib.cursorLibraryLoadImage(name, theme, size)
 		if img != nil {
-			cursor := xlib.cursorImageLoadCursor(display, img)
+			cursor := xlib.cursorImageLoadCursor(display, cast(^xlib.CursorImage)img)
 			xlib.cursorImageDestroy(img)
 			return cursor
 		}
