@@ -5,7 +5,7 @@ import "core:fmt"
 import "core:os"
 import "core:strings"
 
-import SDL "vendor:sdl2"
+import SDL "vendor:sdl3"
 import gl "vendor:OpenGL"
 
 default_cursor: ^SDL.Cursor
@@ -20,95 +20,95 @@ GFX_Context :: struct {
 }
 
 _resolve_key :: proc(code: SDL.Keycode) -> KeyType {
-	#partial switch code {
-		case .A: return .A
-		case .B: return .B
-		case .C: return .C
-		case .D: return .D
-		case .E: return .E
-		case .F: return .F
-		case .G: return .G
-		case .H: return .H
-		case .I: return .I
-		case .J: return .J
-		case .K: return .K
-		case .L: return .L
-		case .M: return .M
-		case .N: return .N
-		case .O: return .O
-		case .P: return .P
-		case .Q: return .Q
-		case .R: return .R
-		case .S: return .S
-		case .T: return .T
-		case .U: return .U
-		case .V: return .V
-		case .W: return .W
-		case .X: return .X
-		case .Y: return .Y
-		case .Z: return .Z
+   switch code {
+   case SDL.K_A: return .A
+   case SDL.K_B: return .B
+   case SDL.K_C: return .C
+   case SDL.K_D: return .D
+   case SDL.K_E: return .E
+   case SDL.K_F: return .F
+   case SDL.K_G: return .G
+   case SDL.K_H: return .H
+   case SDL.K_I: return .I
+   case SDL.K_J: return .J
+   case SDL.K_K: return .K
+   case SDL.K_L: return .L
+   case SDL.K_M: return .M
+   case SDL.K_N: return .N
+   case SDL.K_O: return .O
+   case SDL.K_P: return .P
+   case SDL.K_Q: return .Q
+   case SDL.K_R: return .R
+   case SDL.K_S: return .S
+   case SDL.K_T: return .T
+   case SDL.K_U: return .U
+   case SDL.K_V: return .V
+   case SDL.K_W: return .W
+   case SDL.K_X: return .X
+   case SDL.K_Y: return .Y
+   case SDL.K_Z: return .Z
 
-		case .NUM0: return ._0
-		case .NUM1: return ._1
-		case .NUM2: return ._2
-		case .NUM3: return ._3
-		case .NUM4: return ._4
-		case .NUM5: return ._5
-		case .NUM6: return ._6
-		case .NUM7: return ._7
-		case .NUM8: return ._8
-		case .NUM9: return ._9
+   case SDL.K_KP_0: return ._0
+   case SDL.K_KP_1: return ._1
+   case SDL.K_KP_2: return ._2
+   case SDL.K_KP_3: return ._3
+   case SDL.K_KP_4: return ._4
+   case SDL.K_KP_5: return ._5
+   case SDL.K_KP_6: return ._6
+   case SDL.K_KP_7: return ._7
+   case SDL.K_KP_8: return ._8
+   case SDL.K_KP_9: return ._9
 
-		case .EQUALS:       return .Equal
-		case .MINUS:        return .Minus
-		case .LEFTBRACKET:  return .LeftBracket
-		case .RIGHTBRACKET: return .RightBracket
-		case .QUOTE:      return .Quote
-		case .SEMICOLON:  return .Semicolon
-		case .BACKSLASH:  return .Backslash
-		case .COMMA:      return .Comma
-		case .SLASH:      return .Slash
-		case .PERIOD:     return .Period
-		case .BACKQUOTE:  return .Grave
-		case .RETURN:     return .Return
-		case .TAB:        return .Tab
-		case .SPACE:      return .Space
-		case .BACKSPACE:  return .Backspace
-		case .ESCAPE:     return .Escape
-		case .CAPSLOCK:   return .CapsLock
+   case SDL.K_EQUALS:       return .Equal
+   case SDL.K_MINUS:        return .Minus
+   case SDL.K_LEFTBRACKET:  return .LeftBracket
+   case SDL.K_RIGHTBRACKET: return .RightBracket
+   case SDL.K_APOSTROPHE:   return .Quote
+   case SDL.K_SEMICOLON:    return .Semicolon
+   case SDL.K_BACKSLASH:    return .Backslash
+   case SDL.K_COMMA:        return .Comma
+   case SDL.K_SLASH:        return .Slash
+   case SDL.K_PERIOD:       return .Period
+   case SDL.K_GRAVE:        return .Grave
+   case SDL.K_RETURN:       return .Return
+   case SDL.K_TAB:          return .Tab
+   case SDL.K_SPACE:        return .Space
+   case SDL.K_BACKSPACE:    return .Backspace
+   case SDL.K_ESCAPE:       return .Escape
+   case SDL.K_CAPSLOCK:     return .CapsLock
 
-		case .LALT:   return .LeftAlt
-		case .RALT:   return .RightAlt
-		case .LCTRL:  return .LeftControl
-		case .RCTRL:  return .RightControl
-		case .LGUI:   return .LeftSuper
-		case .RGUI:   return .RightSuper
-		case .LSHIFT: return .LeftShift
-		case .RSHIFT: return .RightShift
+   case SDL.K_LALT:   return .LeftAlt
+   case SDL.K_RALT:   return .RightAlt
+   case SDL.K_LCTRL:  return .LeftControl
+   case SDL.K_RCTRL:  return .RightControl
+   case SDL.K_LGUI:   return .LeftSuper
+   case SDL.K_RGUI:   return .RightSuper
+   case SDL.K_LSHIFT: return .LeftShift
+   case SDL.K_RSHIFT: return .RightShift
 
-		case .F1:  return .F1
-		case .F2:  return .F2
-		case .F3:  return .F3
-		case .F4:  return .F4
-		case .F5:  return .F5
-		case .F6:  return .F6
-		case .F7:  return .F7
-		case .F8:  return .F8
-		case .F9:  return .F9
-		case .F10: return .F10
-		case .F11: return .F11
-		case .F12: return .F12
+   case SDL.K_F1:  return .F1
+   case SDL.K_F2:  return .F2
+   case SDL.K_F3:  return .F3
+   case SDL.K_F4:  return .F4
+   case SDL.K_F5:  return .F5
+   case SDL.K_F6:  return .F6
+   case SDL.K_F7:  return .F7
+   case SDL.K_F8:  return .F8
+   case SDL.K_F9:  return .F9
+   case SDL.K_F10: return .F10
+   case SDL.K_F11: return .F11
+   case SDL.K_F12: return .F12
 
-		case .HOME:     return .Home
-		case .END:      return .End
-		case .PAGEUP:   return .PageUp
-		case .PAGEDOWN: return .PageDown
-		case .DELETE:   return .FwdDelete
+   case SDL.K_HOME:     return .Home
+   case SDL.K_END:      return .End
+   case SDL.K_PAGEUP:   return .PageUp
+   case SDL.K_PAGEDOWN: return .PageDown
+   case SDL.K_DELETE:   return .FwdDelete
 
-		case .LEFT:  return .Left
-		case .RIGHT: return .Right
-		case .DOWN:  return .Down
-		case .UP:    return .Up
+   case SDL.K_LEFT:  return .Left
+   case SDL.K_RIGHT: return .Right
+   case SDL.K_DOWN:  return .Down
+   case SDL.K_UP:    return .Up
 	}
 
 	return .None
@@ -131,21 +131,21 @@ create_context :: proc(title: cstring, width, height: int) -> (GFX_Context, f64,
 		orig_window_height = i32(f64(orig_window_height) * dpr)
 	}
 
-	SDL.Init({.VIDEO})
+	res: bool = SDL.Init({.VIDEO})
 
 	GL_VERSION_MAJOR :: 3
 	GL_VERSION_MINOR :: 3
-	SDL.GL_SetAttribute(.CONTEXT_PROFILE_MASK,  i32(SDL.GLprofile.CORE))
+	SDL.GL_SetAttribute(.CONTEXT_PROFILE_MASK,  i32(SDL.GLProfile.CORE))
 	SDL.GL_SetAttribute(.CONTEXT_MAJOR_VERSION, GL_VERSION_MAJOR)
 	SDL.GL_SetAttribute(.CONTEXT_MINOR_VERSION, GL_VERSION_MINOR)
 
 	SDL.GL_SetAttribute(.MULTISAMPLEBUFFERS, 1)
 	SDL.GL_SetAttribute(.MULTISAMPLESAMPLES, 2)
-	SDL.GL_SetAttribute(SDL.GLattr.FRAMEBUFFER_SRGB_CAPABLE, 1)
+	SDL.GL_SetAttribute(SDL.GLAttr.FRAMEBUFFER_SRGB_CAPABLE, 1)
 
 	SDL.SetHint(SDL.HINT_MOUSE_FOCUS_CLICKTHROUGH, "1")
 
-	window := SDL.CreateWindow(title, SDL.WINDOWPOS_CENTERED, SDL.WINDOWPOS_CENTERED, i32(width), i32(height), {.OPENGL, .RESIZABLE, .ALLOW_HIGHDPI})
+	window := SDL.CreateWindow(title, i32(width), i32(height), {.OPENGL, .RESIZABLE, .HIGH_PIXEL_DENSITY})
 	if window == nil {
 		fmt.eprintln("Failed to create window")
 		os.exit(1)
@@ -153,9 +153,9 @@ create_context :: proc(title: cstring, width, height: int) -> (GFX_Context, f64,
 
 	platform_post_init()
 
-	default_cursor = SDL.CreateSystemCursor(.ARROW)
-	pointer_cursor = SDL.CreateSystemCursor(.HAND)
-	text_cursor    = SDL.CreateSystemCursor(.IBEAM)
+	default_cursor = SDL.CreateSystemCursor(.DEFAULT)
+	pointer_cursor = SDL.CreateSystemCursor(.POINTER)
+	text_cursor    = SDL.CreateSystemCursor(.TEXT)
 
 	gl_context := SDL.GL_CreateContext(window)
 	if gl_context == nil {
@@ -182,7 +182,8 @@ create_context :: proc(title: cstring, width, height: int) -> (GFX_Context, f64,
 	pretend_window_width: i32
 	pretend_window_height: i32
 	SDL.GetWindowSize(window, &pretend_window_width, &pretend_window_height)
-	SDL.GL_GetDrawableSize(window, &real_window_width, &real_window_height)
+   // TODO(LHB): does this behave the same as SDL_GetDrawableSize for this purpose?
+	SDL.GetWindowSizeInPixels(window, &real_window_width, &real_window_height)
 	width := f64(pretend_window_width)
 	height := f64(pretend_window_height)
 
@@ -217,7 +218,7 @@ get_next_event :: proc(gfx: ^GFX_Context, wait: bool) -> PlatformEvent {
 
 	#partial switch event.type {
 		case .QUIT: return PlatformEvent{type = .Exit}
-		case .MOUSEMOTION: {
+		case .MOUSE_MOTION: {
 			x := f64(event.motion.x)
 			y := f64(event.motion.y)
 			if dpi_hack_val > 0 {
@@ -227,7 +228,7 @@ get_next_event :: proc(gfx: ^GFX_Context, wait: bool) -> PlatformEvent {
 
 			return PlatformEvent{type = .MouseMoved, x = x, y = y}
 		}
-		case .MOUSEBUTTONUP: {
+		case .MOUSE_BUTTON_UP: {
 			type := MouseButtonType.None
 			switch event.button.button {
 			case SDL.BUTTON_LEFT: type = .Left
@@ -244,7 +245,7 @@ get_next_event :: proc(gfx: ^GFX_Context, wait: bool) -> PlatformEvent {
 				return PlatformEvent{type = .MouseUp, mouse = type, x = x, y = y}
 			}
 		}
-		case .MOUSEBUTTONDOWN: {
+		case .MOUSE_BUTTON_DOWN: {
 			type := MouseButtonType.None
 			switch event.button.button {
 			case SDL.BUTTON_LEFT: type = .Left
@@ -261,40 +262,34 @@ get_next_event :: proc(gfx: ^GFX_Context, wait: bool) -> PlatformEvent {
 				return PlatformEvent{type = .MouseDown, mouse = type, x = x, y = y}
 			}
 		}
-		case .MOUSEWHEEL: {
+		case .MOUSE_WHEEL: {
 			return PlatformEvent{type = .Scroll, y = f64(event.wheel.y)}
 		}
-		case .KEYDOWN: {
-			key := _resolve_key(event.key.keysym.sym)
+		case .KEY_DOWN: {
+			key := _resolve_key(event.key.key)
 			return PlatformEvent{type = .KeyDown, key = key}
 		}
-		case .KEYUP: {
-			key := _resolve_key(event.key.keysym.sym)
+		case .KEY_UP: {
+			key := _resolve_key(event.key.key)
 			return PlatformEvent{type = .KeyUp, key = key}
 		}
-		case .DROPFILE: {
-			file_name := strings.clone_from_cstring(event.drop.file)
-			SDL.free(rawptr(event.drop.file))
+		case .DROP_FILE: {
+			file_name := strings.clone_from_cstring(event.drop.data)
 			return PlatformEvent{type = .FileDropped, str = file_name}
 		}
-		case .DROPTEXT: {
-			SDL.free(rawptr(event.drop.file))
+		case .DROP_TEXT: {
 		}
-		case .WINDOWEVENT: {
-			#partial switch event.window.event {
-				case .RESIZED: {
-					w := f64(event.window.data1)
-					h := f64(event.window.data2)
-					if dpi_hack_val < 0 {
-						w *= dpr
-						h *= dpr
-					}
+		case .WINDOW_RESIZED: {
+         w := f64(event.window.data1)
+         h := f64(event.window.data2)
+         if dpi_hack_val < 0 {
+            w *= dpr
+            h *= dpr
+         }
 
-					return PlatformEvent{type = .Resize, w = w, h = h}
-				}
-			}
+         return PlatformEvent{type = .Resize, w = w, h = h}
 		}
-		case .TEXTINPUT: {
+		case .TEXT_INPUT: {
 			r_une := string(cstring(rawptr(&event.text.text)))
 			rune_str := strings.clone(r_une)
 			return PlatformEvent{type = .Rune, str = rune_str}
@@ -309,11 +304,7 @@ swap_buffers :: proc(gfx: ^GFX_Context) {
 }
 
 set_fullscreen :: proc(gfx: ^GFX_Context, fullscreen: bool) -> (int, int) {
-	if fullscreen {
-		SDL.SetWindowFullscreen(gfx.window, SDL.WINDOW_FULLSCREEN_DESKTOP)
-	} else {
-		SDL.SetWindowFullscreen(gfx.window, SDL.WindowFlags{})
-	}
+   SDL.SetWindowFullscreen(gfx.window, fullscreen)
 	iw : i32
 	ih : i32
 	SDL.GetWindowSize(gfx.window, &iw, &ih)
@@ -321,10 +312,11 @@ set_fullscreen :: proc(gfx: ^GFX_Context, fullscreen: bool) -> (int, int) {
 }
 
 set_cursor :: proc(gfx: ^GFX_Context, type: string) {
+   res: bool
 	switch type {
-	case "auto":    SDL.SetCursor(default_cursor)
-	case "pointer": SDL.SetCursor(pointer_cursor)
-	case "text":    SDL.SetCursor(text_cursor)
+	case "auto":    res = SDL.SetCursor(default_cursor)
+	case "pointer": res = SDL.SetCursor(pointer_cursor)
+	case "text":    res = SDL.SetCursor(text_cursor)
 	}
 	is_hovering = true
 }
@@ -334,7 +326,7 @@ reset_cursor :: proc(gfx: ^GFX_Context) {
 }
 
 get_clipboard :: proc(gfx: ^GFX_Context) -> string {
-	return string(SDL.GetClipboardText())
+	return string(cstring(SDL.GetClipboardText()))
 }
 set_clipboard :: proc(gfx: ^GFX_Context, text: string) {
 	cstr_text := strings.clone_to_cstring(text, context.temp_allocator)
