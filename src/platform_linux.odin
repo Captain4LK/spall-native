@@ -15,6 +15,7 @@ import "vendor:x11/xlib"
 import "vendor:egl"
 import gl "vendor:OpenGL"
 
+/*
 GFX_Context :: struct {
 	x_display: ^xlib.Display,
 	egl_display: egl.Display,
@@ -724,6 +725,44 @@ reset_cursor :: proc(gfx: ^GFX_Context) {
 	set_cursor(gfx, "auto") 
 	is_hovering = false
 }
+*/
+
+open_file_dialog :: proc() -> (string, bool) {
+   buffer := [4096]u8{}
+   fds := [2]linux.Fd{}
+   ret := linux.pipe2(&fds, {})
+
+   pid, err := linux.fork()
+   if err != os.ERROR_NONE {
+      fmt.printf("Spall uses Zenity for file dialogs! Please install Zenity or launch your trace via the command line, ex: spall <trace>\n")
+      linux.close(fds[0])
+      linux.close(fds[1])
+      return "", false
+   }
+
+   if pid == 0 {
+      linux.dup2(fds[1], 1)
+      linux.close(fds[1])
+      linux.close(fds[0])
+      arguments: []cstring = {"zenity", "--file-selection", nil}
+      posix.execvp(cstring("zenity"), raw_data(arguments))
+      os.exit(1)
+   }
+   linux.close(fds[1])
+
+   for {
+      ret_bytes, err := linux.read(fds[0], buffer[:])
+      if ret_bytes > 0 {
+         linux.close(fds[0])
+         return strings.clone_from_bytes(buffer[:ret_bytes-1]), true
+      } else {
+         break
+      }
+   }
+
+   linux.close(fds[0])
+   return "", false
+}
 
 foreign import abi "system:c++abi"
 foreign abi {
@@ -744,6 +783,16 @@ demangle_symbol :: proc(name: string, tmp_buffer: []u8) -> (string, bool) {
 
 	return string(ret_str), true
 }
+
+platform_pre_init :: proc() {
+   velocity_multiplier = -100
+}
+
+platform_dpi_hack :: proc() -> f64 {
+   return -1
+}
+
+platform_post_init :: proc() { }
 
 sample_child :: proc(trace: ^Trace, program_name: string, path: string, args: []string) -> (ok: bool) { return }
 supports_sampling :: proc() -> (ok: bool) { return }

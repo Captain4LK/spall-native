@@ -1,4 +1,4 @@
-#+build darwin, windows
+#+build linux, windows
 package main
 
 import "core:fmt"
