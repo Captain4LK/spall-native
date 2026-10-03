@@ -507,6 +507,18 @@ main :: proc() {
 				case .FileDropped: {
 					load_trace(&loader, trace, &ui_state, ev.str)
 				}
+				case .FileSelected: {
+					if(ev.ident == 0 || ev.ident == 1) {
+						load_trace(&loader, trace, &ui_state, ev.str)
+					} else if(ev.ident == 2) {
+						program_input_box := &ui_state.textboxes[.ProgramInput]
+						strings.builder_reset(&program_input_box.b)
+						strings.write_string(&program_input_box.b, ev.str)
+						cur_str := strings.to_string(program_input_box.b)
+						r_len := utf8.rune_count_in_string(cur_str)
+						program_input_box.cursor = r_len
+					}
+				}
 				case .Rune: {
 					if capture_text {
 						cur_str := strings.to_string(selected_box.b)

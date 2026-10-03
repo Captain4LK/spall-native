@@ -18,27 +18,6 @@ platform_dpi_hack :: proc() -> f64 {
 	return -1
 }
 
-open_file_dialog :: proc() -> (string, bool) {
-	panel := NS.OpenPanel.openPanel()
-	panel->setCanChooseFiles(true)
-	panel->setResolvesAliases(true)
-	panel->setCanChooseDirectories(false)
-	panel->setAllowsMultipleSelection(false)
-
-	if panel->runModal() == .OK {
-		urls := panel->URLs()
-		ret_count := urls->count()
-		if ret_count != 1 {
-			return "", false
-		}
-
-		url := urls->objectAs(0, ^NS.URL)
-		return strings.clone_from_cstring(url->fileSystemRepresentation()), true
-	}
-
-	return "", false
-}
-
 foreign import abi "system:c++abi"
 foreign abi {
 	@(link_name="__cxa_demangle") _cxa_demangle :: proc(name: rawptr, out_buf: rawptr, len: rawptr, status: rawptr) -> cstring ---

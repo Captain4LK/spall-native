@@ -4,6 +4,7 @@ package main
 import "core:fmt"
 import "core:os"
 import "core:strings"
+import "base:runtime"
 
 import SDL "vendor:sdl3"
 import gl "vendor:OpenGL"
@@ -17,6 +18,31 @@ GFX_Context :: struct {
 
 	rects:      [dynamic]DrawRect,
 	text_rects: [dynamic]TextRect,
+
+	open_file_event: u32,
+	dialog_open: bool,
+}
+
+FileFilter :: struct
+{
+	name: string,
+	pattern: string,
+}
+
+@(private)
+DialogInternalCtx :: struct
+{
+	filters: []SDL.DialogFileFilter,
+	ident: i32,
+	ctx: runtime.Context,
+	gfx: ^GFX_Context,
+}
+
+OpenFileMsg :: struct
+{
+	ident: i32,
+	file_list: []string,
+	filter: i32,
 }
 
 _resolve_key :: proc(code: SDL.Keycode) -> KeyType {
@@ -114,6 +140,63 @@ _resolve_key :: proc(code: SDL.Keycode) -> KeyType {
 	return .None
 }
 
+open_file_dialog :: proc(gfx: ^GFX_Context, ident: i32, filters: []FileFilter, default_location: string, allow_many: bool) {
+	if(gfx.dialog_open) {
+		return
+	}
+	ctx: ^DialogInternalCtx = new(DialogInternalCtx)
+	ctx.ctx = context
+	ctx.ident = ident
+	ctx.gfx = gfx
+
+	// Convert filters (we need a copy anyway)
+	ctx.filters = make([]SDL.DialogFileFilter, len(filters))
+	for filter, idx in filters {
+		ctx.filters[idx].name = strings.clone_to_cstring(filter.name)
+		ctx.filters[idx].pattern = strings.clone_to_cstring(filter.pattern)
+	}
+
+	default_cstr: cstring = strings.clone_to_cstring(default_location)
+		SDL.ShowOpenFileDialog(open_file_callback, ctx, gfx.window, raw_data(ctx.filters), i32(len(ctx.filters)), default_cstr, allow_many)
+		delete(default_cstr)
+	gfx.dialog_open = true
+}
+
+@(private)
+open_file_callback :: proc "c" (userdata: rawptr, filelist: [^]cstring, filter: i32) {
+	dialog_ctx: ^DialogInternalCtx = cast(^DialogInternalCtx)userdata
+	context = dialog_ctx.ctx
+
+	filelist_len: i32 = 0
+	for filelist != nil {
+		if filelist[filelist_len] == nil do break
+			filelist_len += 1
+	}
+
+	msg: ^OpenFileMsg = new(OpenFileMsg)
+	msg.ident = dialog_ctx.ident
+	msg.filter = filter
+	msg.file_list = make([]string, filelist_len)
+	for i in 0..<filelist_len {
+		msg.file_list[i] = strings.clone_from_cstring(filelist[i])
+	}
+
+	event: SDL.Event
+	event.type = SDL.EventType(dialog_ctx.gfx.open_file_event)
+	event.user.windowID = SDL.GetWindowID(dialog_ctx.gfx.window)
+	event.user.data1 = msg
+	res: bool = SDL.PushEvent(&event)
+
+	dialog_ctx.gfx.dialog_open = false
+
+	for filter in dialog_ctx.filters {
+		delete(filter.name)
+		delete(filter.pattern)
+	}
+	delete(dialog_ctx.filters)
+	free(dialog_ctx)
+}
+
 dpi_hack_val := 0.0
 create_context :: proc(title: cstring, width, height: int) -> (GFX_Context, f64, f64, f64) {
 	gfx := GFX_Context{}
@@ -199,6 +282,7 @@ create_context :: proc(title: cstring, width, height: int) -> (GFX_Context, f64,
 	}
 
 	gfx.window = window
+	gfx.open_file_event = SDL.RegisterEvents(1)
 	gfx.rects = make([dynamic]DrawRect)
 	gfx.text_rects = make([dynamic]TextRect)
 	return gfx, dpr, width, height
@@ -293,6 +377,26 @@ get_next_event :: proc(gfx: ^GFX_Context, wait: bool) -> PlatformEvent {
 			r_une := string(cstring(rawptr(&event.text.text)))
 			rune_str := strings.clone(r_une)
 			return PlatformEvent{type = .Rune, str = rune_str}
+		}
+		case SDL.EventType(gfx.open_file_event): {
+			msg: ^OpenFileMsg = cast(^OpenFileMsg)event.user.data1
+			ev: PlatformEvent
+			ev.type = .FileSelected
+			if(len(msg.file_list) == 1) {
+				ev.str = strings.clone(msg.file_list[0])
+				ev.ident = msg.ident
+			}
+
+			// delete msg context
+			for file in msg.file_list {
+				delete(file)
+			}
+			delete(msg.file_list)
+			free(msg)
+
+			if(len(msg.file_list) == 1) {
+				return ev
+			}
 		}
 	}
 

@@ -26,6 +26,8 @@ PlatformEventType :: enum {
 	Rune,
 	More,
 	Exit,
+
+	FileSelected,
 }
 
 KeyType :: enum {
@@ -73,6 +75,8 @@ PlatformEvent :: struct {
 	key: KeyType,
 	mouse: MouseButtonType,
 	str: string,
+
+	ident: i32,
 }
 
 mouse_down :: proc(x, y: f64) {

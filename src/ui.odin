@@ -347,10 +347,7 @@ draw_reduced_header :: proc(gfx: ^GFX_Context, trace: ^Trace, ui_state: ^UIState
 
 		// Open File
 		if button(gfx, Rect{cursor_x, (header_rect.h / 2) - (button_height / 2), button_width, button_height}, "\uf07c", "open file", .IconFont, 0, ui_state.width) {
-			filename, ok := open_file_dialog()
-			if ok {
-				load_trace(&loader, trace, ui_state, filename)
-			}
+			open_file_dialog(gfx, 0, {}, "", false)
 		}
 		cursor_x += button_width + button_pad
 
@@ -432,10 +429,7 @@ draw_header :: proc(gfx: ^GFX_Context, trace: ^Trace, ui_state: ^UIState) {
 
 		// Open File
 		if button(gfx, Rect{cursor_x, (header_rect.h / 2) - (button_height / 2), button_width, button_height}, "\uf07c", "open file", .IconFont, 0, ui_state.width) {
-			filename, ok := open_file_dialog()
-			if ok {
-				load_trace(&loader, trace, ui_state, filename)
-			}
+			open_file_dialog(gfx, 1, {}, "", false)
 		}
 		cursor_x += button_width + button_pad
 
@@ -2482,6 +2476,9 @@ draw_main_menu :: proc(gfx: ^GFX_Context, trace: ^Trace, ui_state: ^UIState, dt:
 	button_width  := 2 * em
 	program_select_rect := Rect{line_x + form_w + edge_pad, next_line(&line_y, form_h), button_height, button_width}
 	if button(gfx, program_select_rect, "\uf15b", "select program", .IconFont, menu_rect.x, menu_rect.w) {
+		open_file_dialog(gfx, 2, {}, "", false)
+		// TODO: event
+		/*
 		filename, ok := open_file_dialog()
 		if ok {
 			strings.builder_reset(&program_input_box.b)
@@ -2490,6 +2487,7 @@ draw_main_menu :: proc(gfx: ^GFX_Context, trace: ^Trace, ui_state: ^UIState, dt:
 			r_len := utf8.rune_count_in_string(cur_str)
 			program_input_box.cursor = r_len
 		}
+		*/
 	}
 
 	path_input_box := &ui_state.textboxes[.PathInput]

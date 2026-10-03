@@ -727,6 +727,7 @@ reset_cursor :: proc(gfx: ^GFX_Context) {
 }
 */
 
+/*
 open_file_dialog :: proc() -> (string, bool) {
    buffer := [4096]u8{}
    fds := [2]linux.Fd{}
@@ -763,6 +764,7 @@ open_file_dialog :: proc() -> (string, bool) {
    linux.close(fds[0])
    return "", false
 }
+*/
 
 foreign import abi "system:c++abi"
 foreign abi {
